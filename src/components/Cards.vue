@@ -1,44 +1,43 @@
 <script setup>
-import { defineProps, defineEmits, ref } from 'vue';
+import Chart from './Chart.vue';
+import { defineProps, ref, watch } from 'vue';
 import { useToggle } from '@vueuse/core';
+import { formatCurrency } from '../helpers/helpers';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Toggling balance view
 const [showBalance, toggleBalance] = useToggle();
 
 // Get property 'user'
-const { user } = defineProps(['user']);
+const props = defineProps(['user', 'transactionData', 'filter']);
 
-// Helper function to filter date (a week/a month/a year)
-function getLastWeeksDate(filterInput) {
-  const now = new Date();
-
-  return new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() - filterInput
-  ).getTime();
+// Calculate inflow and outflow helpers
+function calculateTransaction(type) {
+  return props.transactionData
+    .map((t) => Number(t.amount))
+    .filter((amount) => (type == 'inflow' ? amount > 0 : amount < 0))
+    .reduce((prev, curr) => prev + curr, 0);
 }
 
-// Calculate inflow and outflow for the last 30 days
-const inflow = user.transactions
-  .filter(
-    (t) => t.amount > 0 && new Date(t.date).getTime() >= getLastWeeksDate(30)
-  )
-  .map((t) => t.amount)
-  .reduce((prev, curr) => prev + curr, 0);
-const outflow = user.transactions
-  .filter(
-    (t) => t.amount < 0 && new Date(t.date).getTime() >= getLastWeeksDate(30)
-  )
-  .map((u) => u.amount)
-  .reduce((prev, curr) => prev + curr, 0);
+const inflow = ref(calculateTransaction('inflow'));
+const outflow = ref(calculateTransaction('outflow'));
+
+watch(
+  () => props.transactionData,
+  () => {
+    inflow.value = calculateTransaction('inflow');
+    outflow.value = calculateTransaction('outflow');
+  }
+);
 </script>
 
 <template>
   <div class="flex flex-col sm:flex-row gap-3 w-full">
-    <!-- 1st Card -->
+    <!-- 1st Card: Account Balance -->
     <div
-      class="flex flex-col justify-between w-full sm:flex-1 h-60 sm:h-auto bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
+      class="flex flex-col justify-between w-full flex-1 min-h-60 bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
     >
       <div>
         <p class="font-bold text-sm border-b-[1px] pb-2">
@@ -58,7 +57,7 @@ const outflow = user.transactions
               showBalance ? '' : 'blur-md'
             }`"
           >
-            {{ '$' + user.balance }}
+            {{ formatCurrency(user.balance) }}
           </p>
           <svg
             v-if="showBalance"
@@ -101,17 +100,23 @@ const outflow = user.transactions
       </div>
     </div>
 
-    <!-- 2nd Card -->
+    <!-- 2nd Card: Chart Inflow-Outflow -->
     <div
-      class="text-center flex flex-col justify-between sm:flex-1 w-full h-60 sm:h-auto bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
+      class="flex flex-col justify-between sm:flex-1 w-full sm:h-auto bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
     >
-      CHART
+      <p class="text-sm">Last {{ props.filter }} days</p>
+      <Chart
+        :key="transactionData"
+        height="auto"
+        width="100%"
+        :chartData="transactionData"
+      />
     </div>
 
     <!-- 3rd Card -->
-    <div class="flex flex-col gap-3 sm:flex-1">
+    <div class="flex flex-col gap-3 flex-1">
       <div
-        class="flex flex-col justify-between gap-3 w-full bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
+        class="flex flex-1 flex-col justify-between gap-3 min-h-40 w-full bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
       >
         <div class="flex justify-between border-b-[1px] pb-3">
           <p>Inflows</p>
@@ -131,12 +136,15 @@ const outflow = user.transactions
               />
             </svg>
 
-            Last 30 days
+            Last {{ props.filter }} days
           </span>
         </div>
         <div class="flex justify-between items-end">
-          <p class="font-bold text-4xl text-gray-800">{{ '$ ' + inflow }}</p>
+          <p class="font-bold text-4xl text-gray-800">
+            {{ formatCurrency(inflow) }}
+          </p>
           <span
+            @click="router.push('/inflow')"
             class="flex gap-2 text-sm items-center cursor-pointer text-blue-700 font-semibold"
             >See details
 
@@ -158,7 +166,7 @@ const outflow = user.transactions
         </div>
       </div>
       <div
-        class="flex flex-col justify-between gap-3 w-full bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
+        class="flex flex-1 flex-col min-h-40 justify-between gap-3 w-full bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
       >
         <div class="flex justify-between border-b-[1px] pb-3">
           <p>Outflows</p>
@@ -178,12 +186,15 @@ const outflow = user.transactions
               />
             </svg>
 
-            Last 30 days
+            Last {{ props.filter }} days
           </span>
         </div>
         <div class="flex justify-between items-end">
-          <p class="font-bold text-4xl text-gray-800">{{ outflow }}</p>
+          <p class="font-bold text-4xl text-gray-800">
+            {{ formatCurrency(outflow) }}
+          </p>
           <span
+            @click="router.push('/outflow')"
             class="flex gap-2 text-sm items-center cursor-pointer text-blue-700 font-semibold"
             >See details
 

@@ -23,6 +23,16 @@ const router = createRouter({
       name: 'forgot password',
       component: () => import('../views/ForgotPasswordView.vue'),
     },
+    {
+      path: '/inflow',
+      name: 'inflow',
+      component: () => import('../views/InflowView.vue'),
+    },
+    {
+      path: '/outflow',
+      name: 'outflow',
+      component: () => import('../views/OutflowView.vue'),
+    },
   ],
 });
 

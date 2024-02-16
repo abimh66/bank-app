@@ -1,23 +1,14 @@
 <script setup>
-import { ref, defineProps } from 'vue';
+import { defineProps, defineEmits } from 'vue';
+import { formatCurrency } from '../helpers/helpers';
 
-const { user } = defineProps(['user']);
+const { user, transactionData, filter } = defineProps([
+  'user',
+  'transactionData',
+  'filter',
+]);
 
-// Helper function to filter date (a week/a month/a year)
-function getLastWeeksDate(filterInput) {
-  const now = new Date();
-
-  return new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() - filterInput
-  ).getTime();
-}
-
-const transactionData = ref([]);
-transactionData.value = user.transactions.filter(
-  (t) => new Date(t.date).getTime() >= getLastWeeksDate(7)
-);
+const emit = defineEmits(['setFilter']);
 </script>
 
 <template>
@@ -27,20 +18,12 @@ transactionData.value = user.transactions.filter(
       <h2 class="text-xl font-bold text-gray-800">Transactions</h2>
       <div class="flex gap-3 items-center">
         <span class="cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6 stroke-gray-800"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
-            />
-          </svg>
+          <select @change="(e) => emit('setFilter', e.target.value)">
+            <option value="7" disabled>Filter</option>
+            <option value="7">Week</option>
+            <option value="30">Month</option>
+            <option value="365">Year</option>
+          </select>
         </span>
         <span
           class="flex gap-2 rounded-xl px-3 py-1 text-sm items-center cursor-pointer text-white bg-blue-700 font-semibold"
@@ -69,7 +52,7 @@ transactionData.value = user.transactions.filter(
       class="flex flex-col gap-3 w-full bg-gray-100 text-gray-500 rounded-xl shadow-sm p-5"
     >
       <!-- Date -->
-      <p class="font-semibold text-sm">Last 7 Days</p>
+      <p class="font-semibold text-sm">Last {{ filter }} Days</p>
       <!-- List -->
       <div
         v-for="t in transactionData"
@@ -101,14 +84,15 @@ transactionData.value = user.transactions.filter(
         <!-- Description -->
         <div>
           <p class="font-bold text-gray-800">{{ t.transactionName }}</p>
-          <p class="text-sm">Transaction {{ t.idTransaction }}</p>
+          <p class="text-sm">
+            Transaction {{ t.transactionType + ' ' + t.idTransaction }}
+          </p>
         </div>
 
-        <p class="font-bold text-gray-800 flex-1 text-right">{{ t.amount }}</p>
+        <p class="font-bold text-gray-800 flex-1 text-right">
+          {{ formatCurrency(t.amount) }}
+        </p>
       </div>
     </div>
   </div>
 </template>
-/* { "idTransaction": "#XK3ERCVX", "transactionName": "Lynn Stiedemann",
-"transactionType": "payment", "amount": -482, "date": "2024-02-14T14:13:23.531Z"
-}, */

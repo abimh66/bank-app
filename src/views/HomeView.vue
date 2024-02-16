@@ -5,34 +5,47 @@ import data from '../data/data.json';
 
 // import component
 import Header from '../components/Header.vue';
-import Navbar from '../components/Navbar.vue';
 import Cards from '../components/Cards.vue';
 import Transaction from '../components/Transaction.vue';
+import { getFilterDate } from '../helpers/helpers';
 
-// import { ref } from 'vue';
-import { useToggle } from '@vueuse/core';
+import { ref, watch } from 'vue';
 
 const user = data[0];
+const filter = ref(7);
+function setFilter(dataFilter) {
+  filter.value = dataFilter;
+}
 
-// Toggling navbar view
-const [showNav, toggleNav] = useToggle();
+const transactionData = ref(
+  user.transactions.filter(
+    (t) => new Date(t.date).getTime() >= getFilterDate(filter.value)
+  )
+);
+watch(filter, () => {
+  transactionData.value = user.transactions.filter(
+    (t) => new Date(t.date).getTime() >= getFilterDate(filter.value)
+  );
+});
 </script>
 
 <template>
-  <div :class="`${showNav ? 'overflow-y-hidden' : ''}`">
+  <div>
     <!-- header -->
-    <Header @clickToggle="toggleNav()" :user="user" />
-
-    <!-- Navbar -->
-    <Navbar @clickToggle="toggleNav()" :showNav="showNav" :user="user" />
+    <Header :user="user" />
 
     <!-- Main content -->
     <main class="p-5">
       <!-- Cards Container -->
-      <Cards :user="user" />
+      <Cards :user="user" :filter="filter" :transactionData="transactionData" />
 
       <!-- Transaction Container-->
-      <Transaction :user="user" />
+      <Transaction
+        :user="user"
+        :transactionData="transactionData"
+        :filter="filter"
+        @setFilter="setFilter"
+      />
     </main>
   </div>
 </template>

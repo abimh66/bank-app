@@ -1,14 +1,25 @@
 <script setup>
 import Profile from './Profile.vue';
-import { defineEmits, defineProps } from 'vue';
+import { defineEmits, defineProps, watch } from 'vue';
+import { useToggle } from '@vueuse/core';
+import Navbar from '../components/Navbar.vue';
 
-const emit = defineEmits(['clickToggle']);
+// const emit = defineEmits(['clickToggle']);
 const { user } = defineProps(['user']);
-console.log(user.firstName + user.lastName);
 
-function clickBurger() {
-  emit('clickToggle');
-}
+// function clickBurger() {
+//   emit('clickToggle');
+// }
+
+// Toggling navbar view
+const [showNav, toggleNav] = useToggle();
+
+watch(showNav, () => {
+  // showNav.value ? console.log('true') : console.log('false');
+  document.querySelector('body').style.overflow = showNav.value
+    ? 'hidden'
+    : 'auto';
+});
 </script>
 
 <template>
@@ -19,8 +30,8 @@ function clickBurger() {
       viewBox="0 0 24 24"
       stroke-width="1.5"
       stroke="currentColor"
-      class="w-6 h-6"
-      @click="clickBurger"
+      class="w-6 h-6 cursor-pointer"
+      @click="toggleNav()"
     >
       <path
         stroke-linecap="round"
@@ -28,6 +39,7 @@ function clickBurger() {
         d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
       />
     </svg>
+    <div>Bank</div>
     <div class="flex gap-4 items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +47,7 @@ function clickBurger() {
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="w-5 h-5"
+        class="w-5 h-5 cursor-pointer"
       >
         <path
           stroke-linecap="round"
@@ -49,7 +61,7 @@ function clickBurger() {
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="w-5 h-5"
+        class="w-5 h-5 cursor-pointer"
       >
         <path
           stroke-linecap="round"
@@ -62,4 +74,5 @@ function clickBurger() {
       />
     </div>
   </header>
+  <Navbar @clickToggle="toggleNav()" :showNav="showNav" :user="user" />
 </template>
