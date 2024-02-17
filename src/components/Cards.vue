@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 // Toggling balance view
-const [showBalance, toggleBalance] = useToggle();
+const [showBalance, toggleBalance] = useToggle(true);
 
 // Get property 'user'
 const props = defineProps(['user', 'transactionData', 'filter']);

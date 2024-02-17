@@ -13,7 +13,7 @@ function getData() {
   <div class="flex flex-col">
     <div class="p-5"><h1 class="font-bold">BANK</h1></div>
 
-    <div class="flex items-center justify-center">
+    <div class="flex items-center w-full self-center justify-center sm:max-w-2xl">
       <div class="p-10 flex flex-col gap-5 w-3/4">
         <h2 class="font-bold text-2xl">Sign Up</h2>
         <form class="flex flex-col gap-3">

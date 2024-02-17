@@ -33,6 +33,11 @@ const router = createRouter({
       name: 'outflow',
       component: () => import('../views/OutflowView.vue'),
     },
+    {
+      path: '/transfer',
+      name: 'transfer',
+      component: () => import('../views/TransferView.vue'),
+    },
   ],
 });
 
