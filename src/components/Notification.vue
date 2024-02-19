@@ -41,7 +41,7 @@ const props = defineProps(['status']);
     </svg>
 
     <p class="font-semibold">
-      Transfer {{ status == 'success' ? 'Success' : 'Failed' }}
+      Process {{ status == 'success' ? 'Success' : 'Failed' }}
     </p>
   </div>
 </template>

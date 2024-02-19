@@ -9,10 +9,13 @@ import Cards from '../components/Cards.vue';
 import Transaction from '../components/Transaction.vue';
 import { getFilterDate } from '../helpers/helpers';
 
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onBeforeMount } from 'vue';
+import { useRouter } from 'vue-router';
 
 const user = data[0];
+const router = useRouter();
 const filter = ref(7);
+
 function setFilter(dataFilter) {
   filter.value = dataFilter;
 }
@@ -27,10 +30,15 @@ watch(filter, () => {
     (t) => new Date(t.date).getTime() >= getFilterDate(filter.value)
   );
 });
+
+// onBeforeMount(() => {
+//   if (!localStorage.getItem('storedDataId')) router.push('/login');
+//   else user.value = data[0];
+// });
 </script>
 
 <template>
-  <div>
+  <div v-if="user">
     <!-- header -->
     <Header :user="user" />
 

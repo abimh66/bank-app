@@ -1,11 +1,57 @@
 <script setup>
-import { faker } from '@faker-js/faker';
+import { reactive } from 'vue';
+import Notification from '../components/Notification.vue';
+import { useToggle } from '@vueuse/core';
+import { useRouter } from 'vue-router';
 
-function getData() {
-  const hello = faker.helpers.fake(
-    'Hi, my name is {{person.firstName}} {{person.lastName}}!'
-  );
-  console.log(hello);
+const router = useRouter();
+const cardNumber = reactive({ status: true, value: '' });
+const userId = reactive({ status: true, value: '' });
+const password = reactive({ status: true, value: '' });
+const [notif, setNotif] = useToggle('');
+
+function submitHandler() {
+  cardNumber.status = true;
+  userId.status = true;
+  password.status = true;
+
+  if (
+    !cardNumber.value ||
+    cardNumber.value?.length < 9 ||
+    cardNumber.value?.length > 13
+  ) {
+    console.log(cardNumber.value?.length);
+    cardNumber.status = false;
+    setNotif('failed');
+    setTimeout(() => {
+      setNotif('');
+    }, 2000);
+    return;
+  }
+
+  if (!userId.value || userId.value.length < 6) {
+    userId.status = false;
+    setNotif('failed');
+    setTimeout(() => {
+      setNotif('');
+    }, 2000);
+    return;
+  }
+
+  if (!password.value || password.value.length < 6) {
+    password.status = false;
+    setNotif('failed');
+    setTimeout(() => {
+      setNotif('');
+    }, 2000);
+    return;
+  }
+
+  setNotif('success');
+  setTimeout(() => {
+    setNotif('');
+    router.push('/login');
+  }, 2000);
 }
 </script>
 
@@ -13,34 +59,56 @@ function getData() {
   <div class="flex flex-col">
     <div class="p-5"><h1 class="font-bold">BANK</h1></div>
 
-    <div class="flex items-center w-full self-center justify-center sm:max-w-2xl">
+    <div
+      class="flex items-center w-full self-center justify-center sm:max-w-2xl"
+    >
       <div class="p-10 flex flex-col gap-5 w-3/4">
         <h2 class="font-bold text-2xl">Sign Up</h2>
-        <form class="flex flex-col gap-3">
+        <form @submit.prevent="submitHandler" class="flex flex-col gap-3">
           <div class="flex flex-col">
             <label>ATM Card Number</label>
-            <input type="text" class="border rounded-md h-10" />
-            <p class="text-sm text-red-500">*Please enter your User ID</p>
+            <input
+              v-model="cardNumber.value"
+              type="text"
+              class="border rounded-md h-10 px-2"
+              placeholder="9-13 your card number"
+            />
+            <p v-if="!cardNumber.status" class="text-sm text-red-500">
+              *Please enter 9-13 length card number
+            </p>
           </div>
           <div class="flex flex-col">
             <label>User ID</label>
-            <input type="text" class="border rounded-md h-10" />
-            <p class="text-sm text-red-500">*Please enter your password</p>
+            <input
+              v-model="userId.value"
+              type="text"
+              class="border rounded-md h-10 px-2"
+              placeholder="Create your user id"
+            />
+            <p v-if="!userId.status" class="text-sm text-red-500">
+              *Please enter your user id
+            </p>
           </div>
           <div class="flex flex-col">
             <label>Password</label>
-            <input type="password" class="border rounded-md h-10" />
-            <p class="text-sm text-red-500">*Please enter your password</p>
+            <input
+              v-model="password.value"
+              type="password"
+              class="border rounded-md h-10 px-2"
+              placeholder="Enter password"
+            />
+            <p v-if="!password.status" class="text-sm text-red-500">
+              *Please enter your password
+            </p>
           </div>
 
-          <button
-            @click.prevent="getData"
-            class="bg-blue-500 rounded-md p-2 mt-4 text-white"
-          >
+          <button class="bg-blue-500 rounded-md p-2 mt-4 text-white">
             Create Account
           </button>
         </form>
       </div>
     </div>
   </div>
+
+  <Notification :status="notif" />
 </template>

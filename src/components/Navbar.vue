@@ -11,6 +11,11 @@ function routerHelper(link) {
   emit('clickToggle');
   router.push(link);
 }
+
+function logoutHandler() {
+  localStorage.removeItem('storedDataId');
+  router.push('/login');
+}
 </script>
 
 <template>
@@ -48,7 +53,7 @@ function routerHelper(link) {
         <div class="flex flex-col gap-4">
           <!-- account -->
           <h2 class="uppercase">account</h2>
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-3 sm:gap-2">
             <!-- list -->
             <div
               @click="routerHelper('/')"
@@ -205,7 +210,7 @@ function routerHelper(link) {
         <div class="flex flex-col gap-4 py-8 border-t-[1px] border-t-gray-500">
           <!-- inbox -->
           <h2 class="uppercase">inbox</h2>
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-3 sm:gap-2">
             <div class="flex justify-between items-center cursor-pointer">
               <div class="flex gap-4">
                 <svg
@@ -259,7 +264,9 @@ function routerHelper(link) {
 
       <!-- Part 2 -->
       <div>
-        <div class="flex flex-col gap-3 py-4 border-t-[1px] border-t-gray-500">
+        <div
+          class="flex flex-col gap-3 sm:gap-2 py-4 border-t-[1px] border-t-gray-500"
+        >
           <!-- setting -->
           <div class="flex items-center gap-4">
             <svg
@@ -300,6 +307,27 @@ function routerHelper(link) {
             </svg>
 
             <span>Help</span>
+          </div>
+          <div
+            @click="logoutHandler"
+            class="flex items-center gap-4 cursor-pointer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="w-6 h-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
+              />
+            </svg>
+
+            <span>Logout</span>
           </div>
         </div>
 

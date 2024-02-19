@@ -2,26 +2,75 @@
 import Header from '../components/Header.vue';
 import Notification from '../components/Notification.vue';
 import data from '../data/data.json';
-import { ref, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { reactive } from 'vue';
 import { useToggle } from '@vueuse/core';
+import { fakerID_ID, faker } from '@faker-js/faker';
 
 const user = data[0];
+const router = useRouter();
+
 const cardNumber = reactive({ status: true, value: null });
 const amountTransfer = reactive({ status: true, value: null });
 const pin = reactive({ status: true, value: null });
 const [notif, setNotif] = useToggle('');
 
 function submitHandler() {
-  console.log(cardNumber.value, amountTransfer.value);
-  setNotif('show succes');
+  cardNumber.status = true;
+  amountTransfer.status = true;
+  pin.status = true;
+
+  if (
+    !cardNumber.value ||
+    cardNumber.value?.length < 9 ||
+    cardNumber.value?.length > 13
+  ) {
+    cardNumber.status = false;
+    setNotif('failed');
+    setTimeout(() => {
+      setNotif('');
+    }, 2000);
+    return;
+  }
+
+  // Check Amount transfer
+  if (!amountTransfer.value || Number(amountTransfer) > user.balance) {
+    amountTransfer.status = false;
+    setNotif('failed');
+    setTimeout(() => {
+      setNotif('');
+    }, 2000);
+    return;
+  }
+
+  // check PIN
+  if (pin.value !== user.pin) {
+    pin.status = false;
+    setNotif('failed');
+    setTimeout(() => {
+      setNotif('');
+    }, 2000);
+    return;
+  }
+
+  // const newTransaction = {
+  //   idTransaction:
+  //     '#' + faker.string.alphanumeric({ length: 8, casing: 'upper' }),
+  //   transactionName: faker.helpers.fake([
+  //     '{{company.name}} Corp.',
+  //     '{{person.fullName}}',
+  //   ]),
+  //   transactionType: 'payment',
+  //   amount: amountTransfer.value,
+  //   date: new Date().toISOString(),
+  // };
+
+  // if Success show notification success and delete all the input
+  setNotif('success');
   setTimeout(() => {
     setNotif('');
+    router.push('/');
   }, 2000);
-
-  if (pin.value.length !== user.pin) console.log(user.pin);
-  if (cardNumber.value.length < 9 || cardNumber.value.length > 13) return;
-
-  router.push('/');
 }
 </script>
 <template>
@@ -39,9 +88,10 @@ function submitHandler() {
             <input
               v-model="cardNumber.value"
               type="text"
-              class="border rounded-md h-10"
+              class="border rounded-md h-10 px-2"
+              placeholder="9 to 13 card number"
             />
-            <p class="text-sm text-red-500">
+            <p v-if="!cardNumber.status" class="text-sm text-red-500">
               *Please enter correct Card Number
             </p>
           </div>
@@ -50,9 +100,12 @@ function submitHandler() {
             <input
               v-model="amountTransfer.value"
               type="number"
-              class="border rounded-md h-10"
+              class="border rounded-md h-10 px-2"
+              placeholder="Input amount to transfer"
             />
-            <p class="text-sm text-red-500">*Please enter amount of transfer</p>
+            <p v-if="!amountTransfer.status" class="text-sm text-red-500">
+              *Please enter amount of transfer
+            </p>
           </div>
           <div class="flex flex-col">
             <label>PIN</label>
@@ -61,9 +114,12 @@ function submitHandler() {
               type="password"
               max="6"
               maxlength="6"
-              class="border rounded-md h-10"
+              class="border rounded-md h-10 px-2"
+              placeholder="Enter your pin here"
             />
-            <p class="text-sm text-red-500">*Please enter correct PIN</p>
+            <p v-if="!pin.status" class="text-sm text-red-500">
+              *Please enter correct PIN
+            </p>
           </div>
 
           <button class="bg-blue-500 rounded-md p-2 mt-4 text-white">
