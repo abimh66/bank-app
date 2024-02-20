@@ -1,44 +1,25 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useToggle } from '@vueuse/core';
-import Notification from '../components/Notification.vue';
-import data from '../data/data.json';
+import { useUsersStore } from '@/stores/users';
 
-// Get data userId and password from json object
-const user = data[0];
-const dataUserId = user.userId;
-const dataPassword = user.password;
+const usersStore = useUsersStore();
+onMounted(() => usersStore.fetchUser());
 
 const router = useRouter();
-const userId = reactive({ status: true, value: null });
-const password = reactive({ status: true, value: null });
-
-const [notif, setNotif] = useToggle('');
+const userId = reactive({ status: true, value: '' });
+const password = reactive({ status: true, value: '' });
 
 function submitHandler() {
   userId.status = true;
   password.status = true;
 
-  if (userId.value !== dataUserId) {
-    userId.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
-  }
+  const loginStatus = usersStore.loginUser(userId.value, password.value);
 
-  if (password.value !== dataPassword) {
-    password.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
-  }
+  if (loginStatus == 'wrong user') return (userId.status = false);
+  if (loginStatus == 'wrong password') return (password.status = false);
 
-  localStorage.setItem('storedDataId', user.id);
+  localStorage.setItem('storedDataId', loginStatus);
   router.push('/home');
 }
 </script>
@@ -62,7 +43,7 @@ function submitHandler() {
               placeholder="Enter your user ID here"
             />
             <p v-if="!userId.status" class="text-sm text-red-500">
-              *Please enter your User ID
+              *Please enter your correct User ID
             </p>
           </div>
           <div class="flex flex-col">
@@ -74,7 +55,7 @@ function submitHandler() {
               placeholder="Enter your correct password"
             />
             <p v-if="!password.status" class="text-sm text-red-500">
-              *Please enter your password
+              *Please enter your correct password
             </p>
           </div>
           <p
@@ -98,6 +79,4 @@ function submitHandler() {
       </div>
     </div>
   </div>
-
-  <Notification :status="notif" />
 </template>

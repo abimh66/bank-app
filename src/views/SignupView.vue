@@ -1,8 +1,13 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onMounted } from 'vue';
 import Notification from '../components/Notification.vue';
 import { useToggle } from '@vueuse/core';
 import { useRouter } from 'vue-router';
+import { useUsersStore } from '@/stores/users';
+import { fakerID_ID, faker } from '@faker-js/faker';
+
+const usersStore = useUsersStore();
+onMounted(() => usersStore.fetchUser());
 
 const router = useRouter();
 const cardNumber = reactive({ status: true, value: '' });
@@ -20,38 +25,46 @@ function submitHandler() {
     cardNumber.value?.length < 9 ||
     cardNumber.value?.length > 13
   ) {
-    console.log(cardNumber.value?.length);
-    cardNumber.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
+    return (cardNumber.status = false);
   }
 
   if (!userId.value || userId.value.length < 6) {
-    userId.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
+    return (userId.status = false);
   }
 
   if (!password.value || password.value.length < 6) {
-    password.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
+    return (password.status = false);
   }
 
-  setNotif('success');
-  setTimeout(() => {
-    setNotif('');
-    router.push('/login');
-  }, 2000);
+  const objDataUser = {
+    id: faker.database.mongodbObjectId(),
+    firstName: fakerID_ID.person.firstName(),
+    lastName: fakerID_ID.person.lastName(),
+    userId: userId.value,
+    password: password.value,
+    cardNumber: cardNumber.value,
+    iban: fakerID_ID.finance.iban(),
+    pin: faker.finance.pin(6),
+    balance: fakerID_ID.finance.amount({ min: 100, max: 10000 }),
+    transactions: [],
+  };
+
+  console.log(objDataUser);
+
+  usersStore.addNewUser(objDataUser).then((responseStatus) => {
+    if (responseStatus !== 404) {
+      setNotif('success');
+      setTimeout(() => {
+        setNotif('');
+        router.push('/login');
+      }, 2000);
+    } else {
+      setNotif('failed');
+      setTimeout(() => {
+        setNotif('');
+      }, 2000);
+    }
+  });
 }
 </script>
 

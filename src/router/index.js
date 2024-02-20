@@ -12,6 +12,11 @@ const router = createRouter({
         else return import('../views/LoginView.vue');
       },
     },
+    // {
+    //   path: '/x',
+    //   name: 'x',
+    //   component: () => import('../views/X.vue'),
+    // },
     {
       path: '/home',
       name: 'dashbooard',

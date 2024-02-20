@@ -30,11 +30,6 @@ watch(filter, () => {
     (t) => new Date(t.date).getTime() >= getFilterDate(filter.value)
   );
 });
-
-// onBeforeMount(() => {
-//   if (!localStorage.getItem('storedDataId')) router.push('/login');
-//   else user.value = data[0];
-// });
 </script>
 
 <template>

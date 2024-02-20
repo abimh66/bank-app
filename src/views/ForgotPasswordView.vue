@@ -1,63 +1,59 @@
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useToggle } from '@vueuse/core';
+import { useUsersStore } from '@/stores/users';
 import Notification from '../components/Notification.vue';
+import { useToggle } from '@vueuse/core';
+
+const usersStore = useUsersStore();
+onMounted(() => usersStore.fetchUser());
 
 const cardNumber = reactive({ status: true, value: null });
 const pin = reactive({ status: true, value: null });
 const password = reactive({ status: true, value: null });
-const enterPasswordForm = ref(false);
 const [notif, setNotif] = useToggle('');
+
+const enterPasswordForm = ref(false);
+const userId = ref(null);
 const router = useRouter();
 
 function verificationHandler() {
   cardNumber.status = true;
   pin.status = true;
 
-  if (
-    !cardNumber.value ||
-    cardNumber.value?.length < 9 ||
-    cardNumber.value?.length > 13
-  ) {
-    console.log(cardNumber.value?.length);
-    cardNumber.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
-  }
+  const forgotStatusId = usersStore.forgotUser(cardNumber.value, pin.value);
 
-  if (!pin.value || pin.value.length < 6) {
-    pin.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
-  }
+  if (forgotStatusId == 'wrong card number') return (cardNumber.status = false);
+  if (forgotStatusId == 'wrong pin') return (pin.status = false);
 
   enterPasswordForm.value = true;
+  userId.value = forgotStatusId;
 }
 
 function newPasswordHandler() {
   password.status = true;
 
   if (!password.value || password.value.length < 6) {
-    password.status = false;
-    setNotif('failed');
-    setTimeout(() => {
-      setNotif('');
-    }, 2000);
-    return;
+    return (password.status = false);
   }
+  console.log(password.value);
 
-  setNotif('success');
-  setTimeout(() => {
-    setNotif('');
-    router.push('/login');
-  }, 2000);
+  usersStore
+    .updatePassword(userId.value, password.value)
+    .then((responseStatus) => {
+      if (responseStatus == 200) {
+        setNotif('success');
+        setTimeout(() => {
+          setNotif('');
+          router.push('/login');
+        }, 2000);
+      } else {
+        setNotif('failed');
+        setTimeout(() => {
+          setNotif('');
+        }, 2000);
+      }
+    });
 }
 </script>
 
@@ -84,7 +80,7 @@ function newPasswordHandler() {
               placeholder="Enter your 9-13 card number"
             />
             <p v-if="!cardNumber.status" class="text-sm text-red-500">
-              *Please enter your 9-13 long card number
+              *Please enter your correct card number
             </p>
           </div>
           <div class="flex flex-col">
