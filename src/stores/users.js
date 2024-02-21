@@ -6,15 +6,17 @@ export const useUsersStore = defineStore('users', {
     return { users: [] };
   },
   getters: {
-    getUser() {
-      return this.users;
+    getUser(state) {
+      return state.users;
+    },
+    getUserById: (state) => {
+      return (userId) => state.users.find((user) => user.id === userId);
     },
   },
   actions: {
     fetchUser() {
-      axios.get('http://localhost:8000/users').then((response) => {
+      return axios.get('http://localhost:8000/users').then((response) => {
         this.users = response.data;
-        // console.log(response);
       });
     },
     loginUser(userId, password) {
@@ -48,6 +50,17 @@ export const useUsersStore = defineStore('users', {
     addNewUser(user) {
       const status = axios
         .post('http://localhost:8000/users', user)
+        .then((response) => response.status)
+        .catch((err) => err.response.status);
+
+      return status;
+    },
+    addTransaction(id, newTransaction, newBalance) {
+      const status = axios
+        .patch('http://localhost:8000/users/' + id, {
+          transactions: newTransaction,
+          balance: newBalance,
+        })
         .then((response) => response.status)
         .catch((err) => err.response.status);
 

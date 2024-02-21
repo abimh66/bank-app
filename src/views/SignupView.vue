@@ -7,7 +7,8 @@ import { useUsersStore } from '@/stores/users';
 import { fakerID_ID, faker } from '@faker-js/faker';
 
 const usersStore = useUsersStore();
-onMounted(() => usersStore.fetchUser());
+const storedId = localStorage.getItem('storedDataId');
+onMounted(() => (storedId ? router.push('/home') : usersStore.fetchUser()));
 
 const router = useRouter();
 const cardNumber = reactive({ status: true, value: '' });
@@ -49,7 +50,27 @@ function submitHandler() {
     transactions: [],
   };
 
-  console.log(objDataUser);
+  for (let j = 0; j < 50; j++) {
+    const tType = faker.finance.transactionType();
+    const transaction = {
+      idTransaction:
+        '#' + faker.string.alphanumeric({ length: 8, casing: 'upper' }),
+      transactionName: faker.helpers.fake([
+        '{{company.name}} Corp.',
+        '{{person.fullName}}',
+      ]),
+      transactionType: tType,
+      amount:
+        tType == 'deposit' || tType == 'payment'
+          ? fakerID_ID.number.int({ min: 10, max: 100 })
+          : fakerID_ID.number.int({ min: -100, max: -10 }),
+      date: faker.date.between({
+        from: '2023-11-01T00:00:00.000Z',
+        to: '2024-02-25T00:00:00.000Z',
+      }),
+    };
+    objDataUser.transactions.push(transaction);
+  }
 
   usersStore.addNewUser(objDataUser).then((responseStatus) => {
     if (responseStatus !== 404) {
@@ -69,7 +90,7 @@ function submitHandler() {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div v-if="!storedId" class="flex flex-col">
     <div class="p-5"><h1 class="font-bold">BANK</h1></div>
 
     <div

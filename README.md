@@ -14,16 +14,17 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ```sh
 npm install
+npm install -g json-server
+```
+
+### Run Backend with JSON Server
+
+```sh
+json-server --watch data.json --port 8000
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
 ```

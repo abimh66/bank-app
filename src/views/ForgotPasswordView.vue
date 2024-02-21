@@ -6,7 +6,7 @@ import Notification from '../components/Notification.vue';
 import { useToggle } from '@vueuse/core';
 
 const usersStore = useUsersStore();
-onMounted(() => usersStore.fetchUser());
+// onMounted(() => usersStore.fetchUser());
 
 const cardNumber = reactive({ status: true, value: null });
 const pin = reactive({ status: true, value: null });

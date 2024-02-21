@@ -4,7 +4,12 @@ import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 
 const usersStore = useUsersStore();
-onMounted(() => usersStore.fetchUser());
+const storedId = localStorage.getItem('storedDataId');
+onMounted(() => {
+  if (storedId) return router.push('/home');
+
+  usersStore.fetchUser();
+});
 
 const router = useRouter();
 const userId = reactive({ status: true, value: '' });
@@ -25,7 +30,7 @@ function submitHandler() {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div v-if="!storedId" class="flex flex-col">
     <div class="p-5"><h1 class="font-bold">BANK</h1></div>
 
     <div

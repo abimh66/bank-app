@@ -85,7 +85,14 @@ const emit = defineEmits(['setFilter']);
         <div>
           <p class="font-bold text-gray-800">{{ t.transactionName }}</p>
           <p class="text-sm">
-            Transaction {{ t.transactionType + ' ' + t.idTransaction }}
+            Transaction
+            {{
+              t.transactionType +
+              ' ' +
+              t.idTransaction +
+              ' at ' +
+              new Date(t.date).toDateString()
+            }}
           </p>
         </div>
 
