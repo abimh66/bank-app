@@ -9,7 +9,7 @@
       "cardNumber": "9790415456216",
       "iban": "IE818I5100478130080690",
       "pin": "443344",
-      "balance": "3920.69",
+      "balance": 3900.69,
       "transactions": [
         {
           "idTransaction": "#V7ADOMRK",
@@ -2110,6 +2110,13 @@
           "transactionType": "payment",
           "amount": "64.35",
           "date": "2023-03-15T10:21:15.120Z"
+        },
+        {
+          "idTransaction": "#HZUVWI2C",
+          "transactionName": "Lamar Breitenberg",
+          "transactionType": "invoice",
+          "amount": -20,
+          "date": "2024-02-22T14:28:37.495Z"
         }
       ]
     },

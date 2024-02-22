@@ -1,6 +1,7 @@
 <script setup>
 import { defineProps } from 'vue';
 
+// get props from parent components
 const props = defineProps(['abbreviation']);
 </script>
 

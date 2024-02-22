@@ -1,8 +1,10 @@
 <script setup>
 import { defineProps } from 'vue';
 
+// define props from parent component
 const props = defineProps(['chartData']);
 
+// data series digunakan chart sebagai data input
 const series = [
   {
     name: 'cashfloww',
@@ -10,6 +12,8 @@ const series = [
   },
 ];
 
+// data chart option untuk menentukan
+// tipe chart, warna, label
 const chartOptions = {
   chart: {
     type: 'bar',

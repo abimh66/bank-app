@@ -1,21 +1,17 @@
 <script setup>
 import Profile from './Profile.vue';
-import { defineEmits, defineProps, watch } from 'vue';
+import { defineProps, watch } from 'vue';
 import { useToggle } from '@vueuse/core';
 import Navbar from '../components/Navbar.vue';
 
-// const emit = defineEmits(['clickToggle']);
+// Get props user from parent component
 const { user } = defineProps(['user']);
-
-// function clickBurger() {
-//   emit('clickToggle');
-// }
 
 // Toggling navbar view
 const [showNav, toggleNav] = useToggle();
 
+// Menambahkan style overflow pada body sesuai dengan nilai showNav
 watch(showNav, () => {
-  // showNav.value ? console.log('true') : console.log('false');
   document.querySelector('body').style.overflow = showNav.value
     ? 'hidden'
     : 'auto';

@@ -3,17 +3,25 @@ import Profile from '../components/Profile.vue';
 import { defineProps, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 
+// get emit from parent component
 const emit = defineEmits(['clickToggle']);
-const { showNav, user } = defineProps(['showNav', 'user']);
 
-const router = useRouter();
+// get props showNav, user from parent components
+const { showNav, user } = defineProps(['showNav', 'user']);
+const router = useRouter(); // Menginisiasi router
+
+// Fungsi untuk mentrigger emit dan mengubah router
 function routerHelper(link) {
   emit('clickToggle');
   router.push(link);
 }
 
+// Fungsi untuk logout akun
 function logoutHandler() {
+  // Mengahapus storedDataId di loacal storage
   localStorage.removeItem('storedDataId');
+
+  // router mengarahkan ke halaman login
   router.push('/login');
 }
 </script>
@@ -231,7 +239,7 @@ function logoutHandler() {
               </div>
               <span
                 class="flex justify-center items-center text-white w-7 h-7 rounded-full bg-blue-700"
-                >2</span
+                >3</span
               >
             </div>
             <div class="flex justify-between items-center cursor-pointer">
@@ -255,7 +263,7 @@ function logoutHandler() {
               </div>
               <span
                 class="flex justify-center items-center text-white w-7 h-7 rounded-full bg-blue-700"
-                >2</span
+                >8</span
               >
             </div>
           </div>

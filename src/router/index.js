@@ -6,16 +6,11 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => {
-        if (localStorage.getItem('storedDataId'))
-          return import('../views/HomeView.vue');
-        else return import('../views/LoginView.vue');
-      },
+      component: import('../views/HomeView.vue'),
     },
     {
       path: '/home',
-      name: 'dashbooard',
-      component: () => import('../views/HomeView.vue'),
+      redirect: { name: 'home' },
     },
     {
       path: '/login',

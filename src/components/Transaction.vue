@@ -1,13 +1,17 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
-import { formatCurrency } from '../helpers/helpers';
+import { useUsersStore } from '@/stores/users';
 
+const usersStore = useUsersStore();
+
+// Get property from parent component
 const { user, transactionData, filter } = defineProps([
   'user',
   'transactionData',
   'filter',
 ]);
 
+// Get emit from parent component
 const emit = defineEmits(['setFilter']);
 </script>
 
@@ -18,6 +22,7 @@ const emit = defineEmits(['setFilter']);
       <h2 class="text-xl font-bold text-gray-800">Transactions</h2>
       <div class="flex gap-3 items-center">
         <span class="cursor-pointer">
+          <!-- Saat input berubah, fungsi setFilter di parent component akan di-trigger -->
           <select @change="(e) => emit('setFilter', e.target.value)">
             <option value="7" disabled>Filter</option>
             <option value="7">Week</option>
@@ -97,7 +102,7 @@ const emit = defineEmits(['setFilter']);
         </div>
 
         <p class="font-bold text-gray-800 flex-1 text-right">
-          {{ formatCurrency(t.amount) }}
+          {{ usersStore.formatCurrency(t.amount) }}
         </p>
       </div>
     </div>

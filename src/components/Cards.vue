@@ -1,11 +1,13 @@
 <script setup>
 import Chart from './Chart.vue';
+
 import { defineProps, ref, watch } from 'vue';
 import { useToggle } from '@vueuse/core';
-import { formatCurrency } from '../helpers/helpers';
 import { useRouter } from 'vue-router';
+import { useUsersStore } from '@/stores/users';
 
-const router = useRouter();
+const usersStore = useUsersStore(); // Menginisiasi store
+const router = useRouter(); // Menginisiasi router
 
 // Toggling balance view
 const [showBalance, toggleBalance] = useToggle(true);
@@ -21,9 +23,12 @@ function calculateTransaction(type) {
     .reduce((prev, curr) => prev + curr, 0);
 }
 
+// Assisgn variabel inflow dan outflow
 const inflow = ref(calculateTransaction('inflow'));
 const outflow = ref(calculateTransaction('outflow'));
 
+// Jika nilai transactionData berubah maka inflow-outflow
+// juga berubah sesuai dengan nilai transactionData terbaru
 watch(
   () => props.transactionData,
   () => {
@@ -57,7 +62,7 @@ watch(
               showBalance ? '' : 'blur-md'
             }`"
           >
-            {{ formatCurrency(user.balance) }}
+            {{ usersStore.formatCurrency(user.balance) }}
           </p>
           <svg
             v-if="showBalance"
@@ -141,7 +146,7 @@ watch(
         </div>
         <div class="flex justify-between items-end">
           <p class="font-bold text-4xl text-gray-800">
-            {{ formatCurrency(inflow) }}
+            {{ usersStore.formatCurrency(inflow) }}
           </p>
           <span
             @click="router.push('/inflow')"
@@ -191,7 +196,7 @@ watch(
         </div>
         <div class="flex justify-between items-end">
           <p class="font-bold text-4xl text-gray-800">
-            {{ formatCurrency(outflow) }}
+            {{ usersStore.formatCurrency(outflow) }}
           </p>
           <span
             @click="router.push('/outflow')"

@@ -1,5 +1,7 @@
 <script setup>
 import { defineProps } from 'vue';
+
+// Get props status from parent components
 const props = defineProps(['status']);
 </script>
 <template>

@@ -3,27 +3,37 @@ import { reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 
-const usersStore = useUsersStore();
-const storedId = localStorage.getItem('storedDataId');
+const usersStore = useUsersStore(); //Menggunakan pinia user store yang telah dibuat
+const storedId = localStorage.getItem('storedDataId'); // Mengambil storedDataId dari web local storage
+
+const router = useRouter(); // Menginisiasi router
+const userId = reactive({ status: true, value: '' }); // Membuat variabel reactive userId
+const password = reactive({ status: true, value: '' }); // Membuat variabel reactive password
+
+// OnMounted akan menjalankan callback function saat components telah di-mount
 onMounted(() => {
+  // Cek apakah local storage masih menyimpan id user aktif
+  // Jika iya, maka router akan diarahkan kembali ke home
   if (storedId) return router.push('/home');
 
+  // Fetching data
   usersStore.fetchUser();
 });
 
-const router = useRouter();
-const userId = reactive({ status: true, value: '' });
-const password = reactive({ status: true, value: '' });
-
+// Function yang akan dipanggil saat form disubmit
 function submitHandler() {
+  // Set variabel userId.status dan passwrord.status true
+  // Status digunakan untuk memberi message kepada user apakah input sudah benar
   userId.status = true;
   password.status = true;
 
+  // Validasi input user dengan actions 'loginUser'
   const loginStatus = usersStore.loginUser(userId.value, password.value);
-
   if (loginStatus == 'wrong user') return (userId.status = false);
   if (loginStatus == 'wrong password') return (password.status = false);
 
+  // Jika validasi berhasil, set local storage dengan id user aktif
+  // ubah router ke home
   localStorage.setItem('storedDataId', loginStatus);
   router.push('/home');
 }

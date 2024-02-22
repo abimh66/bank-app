@@ -1,30 +1,41 @@
 <script setup>
-// Dataset dibuat dengan @faker-js/faker (https://fakerjs.dev/)
-// Data terdiri dari 1 user dengan total 300 transaksi
 import Chart from '../components/Chart.vue';
 import Loading from '../components/Loading.vue';
-import { getFilterDate } from '../helpers/helpers';
 import Header from '../components/Header.vue';
 import Transaction from '../components/Transaction.vue';
-import { ref, watch, onMounted } from 'vue';
 
+import { useRouter } from 'vue-router';
+import { ref, watch, onMounted } from 'vue';
 import { useUsersStore } from '@/stores/users';
 
-const id = localStorage.getItem('storedDataId');
+const usersStore = useUsersStore(); //Menggunakan pinia user store yang telah dibuat
+const storedId = localStorage.getItem('storedDataId'); // Mengambil storedDataId dari web local storage
+const router = useRouter(); // Menginisiasi router
+
+// Membuat variabel reactive untuk user, transactionData, filter
 const user = ref(null);
-const transactionData = ref(null);
+const transactionData = ref([]);
 const outflowTotal = ref(null);
-const usersStore = useUsersStore();
+const filter = ref(7);
+
+// OnMounted akan menjalankan callback function saat components telah di-mount
 onMounted(() => {
+  // Cek apakah local storage menyimpan id user aktif
+  // Jika tidak, maka router akan diarahkan kembali ke halaman login
+  if (!storedId) return router.push('/login');
+
+  // Fetching data, kemudian assign data ke
+  // variabel user, transactionData, dan outflowTotal
   usersStore
     .fetchUser()
-    .then(() => (user.value = usersStore.users.find((u) => u.id == id)))
+    .then(() => (user.value = usersStore.users.find((u) => u.id == storedId)))
     .then(() => {
+      // filter transactionData sesuai dengan date dan amount
       transactionData.value = user.value.transactions
         .filter(
           (t) =>
-            new Date(t.date).getTime() >= getFilterDate(filter.value) &&
-            t.amount < 0
+            new Date(t.date).getTime() >=
+              usersStore.getFilterDate(filter.value) && t.amount < 0
         )
         .sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -38,16 +49,18 @@ onMounted(() => {
     });
 });
 
-const filter = ref(7);
+// Fungsi untuk menetapkan nilai filter
 function setFilter(dataFilter) {
   filter.value = dataFilter;
 }
 
+// Jika nilai filter berubah maka transactionData dan outflowTotal
+// juga berubah sesuai dengan nilai filter terbaru
 watch(filter, () => {
   transactionData.value = user.value.transactions
     .filter(
       (t) =>
-        new Date(t.date).getTime() >= getFilterDate(filter.value) &&
+        new Date(t.date).getTime() >= usersStore.getFilterDate(filter.value) &&
         t.amount < 0
     )
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -60,7 +73,7 @@ watch(filter, () => {
 </script>
 
 <template>
-  <div v-if="user && transactionData">
+  <div v-if="user">
     <Header :user="user" />
     <div class="flex flex-col gap-5 p-5">
       <!-- title -->
@@ -69,12 +82,7 @@ watch(filter, () => {
         <div class="flex gap-1 items-end">
           <p class="font-semibold text-sm text-gray-500">Total outflows</p>
           <p class="font-bold text-2xl">
-            {{
-              new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-              }).format(outflowTotal)
-            }}
+            {{ usersStore.formatCurrency(outflowTotal) }}
           </p>
         </div>
       </div>

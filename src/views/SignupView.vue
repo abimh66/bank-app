@@ -1,26 +1,34 @@
 <script setup>
-import { reactive, onMounted } from 'vue';
 import Notification from '../components/Notification.vue';
+
+import { reactive, onMounted } from 'vue';
 import { useToggle } from '@vueuse/core';
 import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
 import { fakerID_ID, faker } from '@faker-js/faker';
 
-const usersStore = useUsersStore();
-const storedId = localStorage.getItem('storedDataId');
-onMounted(() => (storedId ? router.push('/home') : usersStore.fetchUser()));
+const usersStore = useUsersStore(); //Menggunakan pinia user store yang telah dibuat
+const storedId = localStorage.getItem('storedDataId'); // Mengambil storedDataId dari web local storage
+const router = useRouter(); // Menginisiasi router
 
-const router = useRouter();
+// Membuat variabel reactive untuk cardNumber, pin, password
 const cardNumber = reactive({ status: true, value: '' });
 const userId = reactive({ status: true, value: '' });
 const password = reactive({ status: true, value: '' });
-const [notif, setNotif] = useToggle('');
 
+const [notif, setNotif] = useToggle(''); //membuat toggle untuk notifikasi
+
+// Cek apakah local storage masih menyimpan id user aktif
+// Jika iya, maka router akan diarahkan kembali ke home
+onMounted(() => (storedId ? router.push('/home') : usersStore.fetchUser()));
+
+// Function yang akan dipanggil saat form disubmit
 function submitHandler() {
   cardNumber.status = true;
   userId.status = true;
   password.status = true;
 
+  // Validasi input, jika salah muncul message yang sesuai
   if (
     !cardNumber.value ||
     cardNumber.value?.length < 9 ||
@@ -37,6 +45,7 @@ function submitHandler() {
     return (password.status = false);
   }
 
+  // Membuat random data user dengan fakerAPI
   const objDataUser = {
     id: faker.database.mongodbObjectId(),
     firstName: fakerID_ID.person.firstName(),
@@ -50,6 +59,7 @@ function submitHandler() {
     transactions: [],
   };
 
+  // Membuat random data transaksi user
   for (let j = 0; j < 50; j++) {
     const tType = faker.finance.transactionType();
     const transaction = {
@@ -72,6 +82,8 @@ function submitHandler() {
     objDataUser.transactions.push(transaction);
   }
 
+  // Menginputkan user baru dengan action addNewUser
+  // Jika berhasil maka muncul notif sukses dan router mengarahkan ke halaman login
   usersStore.addNewUser(objDataUser).then((responseStatus) => {
     if (responseStatus !== 404) {
       setNotif('success');

@@ -1,22 +1,34 @@
 <script setup>
+import Notification from '../components/Notification.vue';
+import Loading from '../components/Loading.vue';
+
 import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsersStore } from '@/stores/users';
-import Notification from '../components/Notification.vue';
 import { useToggle } from '@vueuse/core';
 
-const usersStore = useUsersStore();
-// onMounted(() => usersStore.fetchUser());
+const usersStore = useUsersStore(); //Menggunakan pinia user store yang telah dibuat
+const storedId = localStorage.getItem('storedDataId'); // Mengambil storedDataId dari web local storage
 
+// Membuat variabel reactive untuk cardNumber, pin, password
 const cardNumber = reactive({ status: true, value: null });
 const pin = reactive({ status: true, value: null });
 const password = reactive({ status: true, value: null });
-const [notif, setNotif] = useToggle('');
+
+const isLoading = ref(true);
+const [notif, setNotif] = useToggle(''); //membuat toggle untuk notifikasi
 
 const enterPasswordForm = ref(false);
 const userId = ref(null);
-const router = useRouter();
+const router = useRouter(); // Menginisiasi router
 
+onMounted(() => {
+  if (storedId) return router.push('/home');
+
+  isLoading.value = false;
+});
+
+// Fungsi untuk memverikasi cardNumber dan pin user
 function verificationHandler() {
   cardNumber.status = true;
   pin.status = true;
@@ -30,6 +42,7 @@ function verificationHandler() {
   userId.value = forgotStatusId;
 }
 
+// Fungsi untuk mengupdate password
 function newPasswordHandler() {
   password.status = true;
 
@@ -38,6 +51,8 @@ function newPasswordHandler() {
   }
   console.log(password.value);
 
+  // Update password dengan action updatePassword
+  // Jika responseStatus == 200 maka muncul notif sukses dan router mengarahkan ke halaman login
   usersStore
     .updatePassword(userId.value, password.value)
     .then((responseStatus) => {
@@ -58,7 +73,7 @@ function newPasswordHandler() {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div v-if="!isLoading" class="flex flex-col">
     <div class="p-5"><h1 class="font-bold">BANK</h1></div>
     <!-- flex items-center w-full self-center justify-center sm:max-w-2xl -->
     <div
@@ -124,5 +139,6 @@ function newPasswordHandler() {
     </div>
   </div>
 
+  <Loading v-else />
   <Notification :status="notif" />
 </template>

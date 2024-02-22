@@ -1,35 +1,42 @@
 <script setup>
 import Header from '../components/Header.vue';
 import Notification from '../components/Notification.vue';
+
 import { useRouter } from 'vue-router';
 import { reactive, onMounted, ref } from 'vue';
 import { useToggle } from '@vueuse/core';
 import { faker } from '@faker-js/faker';
-
 import { useUsersStore } from '@/stores/users';
 
 const usersStore = useUsersStore();
 const storedId = localStorage.getItem('storedDataId');
-onMounted(() => {
-  usersStore
-    .fetchUser()
-    .then(() => (user.value = usersStore.users.find((u) => u.id == storedId)));
-});
-
-const user = ref(null);
-
 const router = useRouter();
 
+// Membuat variabel reactive untuk user, cardNumber, amountTransfer, pin
+const user = ref(null);
 const cardNumber = reactive({ status: true, value: null });
 const amountTransfer = reactive({ status: true, value: null });
 const pin = reactive({ status: true, value: null });
 const [notif, setNotif] = useToggle('');
+
+onMounted(() => {
+  // Cek apakah local storage menyimpan id user aktif
+  // Jika tidak, maka router akan diarahkan kembali ke halaman login
+  if (!storedId) return router.push('/login');
+
+  // Fetching data, kemudian assign data ke variabel user
+  usersStore
+    .fetchUser()
+    .then(() => (user.value = usersStore.users.find((u) => u.id == storedId)));
+});
 
 function submitHandler() {
   cardNumber.status = true;
   amountTransfer.status = true;
   pin.status = true;
 
+  // Validasi input
+  // Check cardNumber
   if (
     !cardNumber.value ||
     cardNumber.value?.length < 9 ||
@@ -50,11 +57,11 @@ function submitHandler() {
 
   // check PIN
   if (pin.value !== user.value.pin) {
-    console.log(user.value.pin);
     pin.status = false;
     return;
   }
 
+  // Membuat random data transaksi
   const newTransaction = {
     idTransaction:
       '#' + faker.string.alphanumeric({ length: 8, casing: 'upper' }),
@@ -66,9 +73,12 @@ function submitHandler() {
     amount: amountTransfer.value * -1,
     date: new Date().toISOString(),
   };
+
+  // Mengupdate saldo bank/balance
   const newBalance = user.value.balance - amountTransfer.value;
 
-  // if Success show notification success and delete all the input
+  // tambahkan transaksi dengan action assTransaction
+  // jika berhasil mucul notifikasi sukses
   usersStore
     .addTransaction(
       user.value.id,
@@ -92,12 +102,6 @@ function submitHandler() {
         }, 2000);
       }
     });
-
-  // setNotif('success');
-  // setTimeout(() => {
-  //   setNotif('');
-  //   router.push('/');
-  // }, 2000);
 }
 </script>
 <template>
@@ -150,7 +154,7 @@ function submitHandler() {
           </div>
 
           <button class="bg-blue-500 rounded-md p-2 mt-4 text-white">
-            Login
+            Transfer
           </button>
         </form>
       </div>
