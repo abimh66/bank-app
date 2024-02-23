@@ -32,11 +32,13 @@ json-server --watch src/data/data.json --port 8000
 npm run dev
 ```
 
+\*Cek user username dan password di src/data/data.json atau http://localhost:8000/users setelah local backend server dijalankan
+
 ## Overview
 
 ### Penjelasan Project
 
-Pada project ini saya membangun sebuah Aplikasi Keuangan yang mencakup pemasukan, pengeluaran, transaksi. Credit design [Matteo Della Chiesa](https://dribbble.com/MatteoDellaChiesa)
+Pada project ini saya membangun sebuah Aplikasi Keuangan yang mencakup pemasukan, pengeluaran, transaksi. Credit design by [Matteo Della Chiesa](https://dribbble.com/MatteoDellaChiesa).
 
 Objektif pada project ini:
 
